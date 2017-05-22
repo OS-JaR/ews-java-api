@@ -75,7 +75,7 @@ public final class FolderView extends PagedView {
       writer.writeAttributeValue(XmlAttributeNames.Traversal, this
           .getTraversal());
     } catch (ServiceXmlSerializationException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
   }
 

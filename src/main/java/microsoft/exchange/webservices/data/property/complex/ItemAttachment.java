@@ -124,7 +124,7 @@ public class ItemAttachment extends Attachment implements IServiceObjectChangedD
         try {
           this.item.loadFromXml(reader, true /* clearPropertyBag */);
         } catch (Exception e) {
-          LOG.error(e);
+         LOG.error("EWS Exception : " + e.getMessage(), e);
 
         }
       }
@@ -176,7 +176,7 @@ public class ItemAttachment extends Attachment implements IServiceObjectChangedD
     try {
       this.item.writeToXml(writer);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
 
     }
   }

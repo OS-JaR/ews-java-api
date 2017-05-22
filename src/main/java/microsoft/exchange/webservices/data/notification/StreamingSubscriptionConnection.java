@@ -346,7 +346,7 @@ public final class StreamingSubscriptionConnection implements Closeable,
         // doing the necessary cleanup.
         this.currentHangingRequest.disconnect();
       } catch (Exception e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
     }
   }

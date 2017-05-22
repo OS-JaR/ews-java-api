@@ -76,7 +76,7 @@ abstract class DeleteRequest<TResponse extends ServiceResponse> extends
       writer.writeAttributeValue(XmlAttributeNames.DeleteType, this
           .getDeleteMode());
     } catch (ServiceXmlSerializationException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
   }
 

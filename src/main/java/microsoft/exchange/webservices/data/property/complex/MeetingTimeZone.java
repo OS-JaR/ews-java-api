@@ -185,7 +185,7 @@ public final class MeetingTimeZone extends ComplexProperty {
       result.setId(this.getName());
     } catch (Exception e) {
       // Could not find a time zone with that Id on the local system.
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
 
     // Again, we cannot accurately convert MeetingTimeZone into TimeZoneInfo

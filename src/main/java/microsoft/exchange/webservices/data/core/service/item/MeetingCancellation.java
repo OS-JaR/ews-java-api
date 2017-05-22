@@ -83,7 +83,7 @@ public class MeetingCancellation extends MeetingMessage {
       return service.bindToItem(MeetingCancellation.class, id,
           propertySet);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return null;
     }
   }

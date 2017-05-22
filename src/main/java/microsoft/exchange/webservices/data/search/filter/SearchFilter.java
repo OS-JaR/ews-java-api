@@ -1107,9 +1107,9 @@ public abstract class SearchFilter extends ComplexProperty {
             reader.read();
             reader.ensureCurrentNodeIsStartElement();
           } catch (ServiceXmlDeserializationException e) {
-            LOG.error(e);
+           LOG.error("EWS Exception : " + e.getMessage(), e);
           } catch (XMLStreamException e) {
-            LOG.error(e);
+           LOG.error("EWS Exception : " + e.getMessage(), e);
           }
 
           if (reader.isStartElement(XmlNamespace.Types,

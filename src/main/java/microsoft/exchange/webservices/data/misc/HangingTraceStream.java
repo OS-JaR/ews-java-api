@@ -125,7 +125,7 @@ public class HangingTraceStream extends InputStream {
       try {
         service.traceMessage(TraceFlags.DebugMessage, logMessage);
       } catch (final XMLStreamException e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
     }
 

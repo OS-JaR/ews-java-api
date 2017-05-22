@@ -966,12 +966,12 @@ public class EwsXmlReader {
       try {
         in = new ByteArrayInputStream(str.toString().getBytes("UTF-8"));
       } catch (UnsupportedEncodingException e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
       eventReader = inputFactory.createXMLEventReader(in);
 
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
     return eventReader;
   }

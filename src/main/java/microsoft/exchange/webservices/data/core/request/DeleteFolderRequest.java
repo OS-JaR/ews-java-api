@@ -133,7 +133,7 @@ public final class DeleteFolderRequest extends DeleteRequest<ServiceResponse> {
       this.getFolderIds().writeToXml(writer, XmlNamespace.Messages,
           XmlElementNames.FolderIds);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
   }
 

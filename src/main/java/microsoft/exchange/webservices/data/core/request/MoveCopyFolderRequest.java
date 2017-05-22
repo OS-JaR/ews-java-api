@@ -88,7 +88,7 @@ abstract class MoveCopyFolderRequest<TResponse extends ServiceResponse> extends
       this.folderIds.writeToXml(writer, XmlNamespace.Messages,
           XmlElementNames.FolderIds);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
   }
 

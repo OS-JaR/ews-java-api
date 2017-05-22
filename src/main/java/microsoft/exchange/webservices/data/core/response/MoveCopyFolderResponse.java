@@ -90,7 +90,7 @@ public final class MoveCopyFolderResponse extends ServiceResponse implements
 
       this.folder = folders.get(0);
     } catch (ServiceLocalException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
 
   }

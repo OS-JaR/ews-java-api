@@ -55,13 +55,13 @@ public class CallableMethod implements Callable<Object> {
       return executeMethod();
     } catch (EWSHttpException e) {
       // TODO Auto-generated catch block
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     } catch (HttpErrorException e) {
       // TODO Auto-generated catch block
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     } catch (IOException e) {
       // TODO Auto-generated catch block
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
     return request;
   }

@@ -145,7 +145,7 @@ public final class GetDomainSettingsResponse extends AutodiscoverResponse {
           try {
             this.loadDomainSettingsFromXml(reader);
           } catch (Exception e) {
-            LOG.error(e);
+           LOG.error("EWS Exception : " + e.getMessage(), e);
           }
         } else {
           super.loadFromXml(reader, endElementName);

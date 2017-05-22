@@ -152,7 +152,7 @@ public class EwsServiceXmlWriter implements IDisposable {
       try {
         this.xmlWriter.close();
       } catch (XMLStreamException e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
       this.isDisposed = true;
     }
@@ -517,8 +517,8 @@ public class EwsServiceXmlWriter implements IDisposable {
       for (int readNum; (readNum = stream.read(buf)) != -1; ) {
         bos.write(buf, 0, readNum);
       }
-    } catch (IOException ex) {
-      LOG.error(ex);
+    } catch (IOException e) {
+      LOG.error("EWS Exception : " + e.getMessage(), e);
     } finally {
       bos.close();
     }

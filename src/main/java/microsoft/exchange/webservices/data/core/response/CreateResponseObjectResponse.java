@@ -52,10 +52,10 @@ import org.apache.commons.logging.LogFactory;
     try {
       return EwsUtilities.createEwsObjectFromXmlElementName(Item.class, service, xmlElementName);
     } catch (InstantiationException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return null;
     } catch (IllegalAccessException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return null;
     }
   }

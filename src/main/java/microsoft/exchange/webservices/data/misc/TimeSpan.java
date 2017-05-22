@@ -225,7 +225,7 @@ public class TimeSpan implements Comparable<TimeSpan>, java.io.Serializable, Clo
     try {
       return super.clone();
     } catch (CloneNotSupportedException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       throw new InternalError();
     }
   }

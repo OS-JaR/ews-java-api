@@ -258,7 +258,7 @@ public final class TimeChange extends ComplexProperty {
       writer.writeAttributeValue(XmlAttributeNames.TimeZoneName,
           this.timeZoneName);
     } catch (ServiceXmlSerializationException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
   }
 

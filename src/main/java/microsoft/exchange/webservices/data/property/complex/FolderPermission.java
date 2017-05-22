@@ -257,7 +257,7 @@ public final class FolderPermission extends ComplexProperty implements IComplexP
                 results.add(permission);
 
               } catch (CloneNotSupportedException e) {
-                LOG.error(e);
+               LOG.error("EWS Exception : " + e.getMessage(), e);
               }
               return results;
             }

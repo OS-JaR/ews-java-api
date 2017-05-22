@@ -87,9 +87,9 @@ public final class ItemCollection<TItem extends Item> extends ComplexProperty
               item.loadFromXml(reader,
                   true /* clearPropertyBag */);
             } catch (ServiceObjectPropertyException e) {
-              LOG.error(e);
+             LOG.error("EWS Exception : " + e.getMessage(), e);
             } catch (ServiceVersionException e) {
-              LOG.error(e);
+             LOG.error("EWS Exception : " + e.getMessage(), e);
             }
 
             this.items.add(item);

@@ -312,7 +312,7 @@ public abstract class AutodiscoverRequest {
           this.service.processHttpErrorResponse(req, exception);
         }
       } catch (Exception e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
     }
   }
@@ -443,7 +443,7 @@ public abstract class AutodiscoverRequest {
       // If response doesn't contain a valid SOAP fault, just ignore
       // exception and
       // return null for SOAP fault details.
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
 
     return soapFaultDetails;

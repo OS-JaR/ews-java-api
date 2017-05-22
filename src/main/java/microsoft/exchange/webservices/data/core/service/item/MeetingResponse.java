@@ -78,7 +78,7 @@ public class MeetingResponse extends MeetingMessage {
     try {
       return service.bindToItem(MeetingResponse.class, id, propertySet);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return null;
     }
   }

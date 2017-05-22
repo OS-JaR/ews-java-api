@@ -70,7 +70,7 @@ public class MapiTypeConverterMapEntry {
           try {
             map.put(Date.class, formatter.parse("0001-01-01 12:00:00"));
           } catch (ParseException e) {
-            LOG.error(e);
+           LOG.error("EWS Exception : " + e.getMessage(), e);
           }
           map.put(UUID.class, UUID.fromString("00000000-0000-0000-0000-000000000000"));
           map.put(String.class, null);

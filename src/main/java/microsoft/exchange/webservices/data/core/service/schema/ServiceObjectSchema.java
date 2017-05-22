@@ -185,11 +185,11 @@ public abstract class ServiceObjectSchema implements
             }
           }
         } catch (IllegalArgumentException e) {
-          LOG.error(e);
+         LOG.error("EWS Exception : " + e.getMessage(), e);
 
           // Skip the field
         } catch (IllegalAccessException e) {
-          LOG.error(e);
+         LOG.error("EWS Exception : " + e.getMessage(), e);
 
           // Skip the field
         }
@@ -221,11 +221,11 @@ public abstract class ServiceObjectSchema implements
                 .getName());
           }
         } catch (IllegalArgumentException e) {
-          LOG.error(e);
+         LOG.error("EWS Exception : " + e.getMessage(), e);
 
           // Skip the field
         } catch (IllegalAccessException e) {
-          LOG.error(e);
+         LOG.error("EWS Exception : " + e.getMessage(), e);
 
           // Skip the field
         }
@@ -270,11 +270,11 @@ public abstract class ServiceObjectSchema implements
                 propertyDefinition.setName(field.getName());
               }
             } catch (IllegalArgumentException e) {
-              LOG.error(e);
+             LOG.error("EWS Exception : " + e.getMessage(), e);
 
               // Skip the field
             } catch (IllegalAccessException e) {
-              LOG.error(e);
+             LOG.error("EWS Exception : " + e.getMessage(), e);
 
               // Skip the field
             }
