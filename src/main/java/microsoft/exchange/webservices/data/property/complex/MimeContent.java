@@ -29,14 +29,20 @@ import microsoft.exchange.webservices.data.core.XmlAttributeNames;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceXmlDeserializationException;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceXmlSerializationException;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * Represents the MIME content of an item.
  */
 public final class MimeContent extends ComplexProperty {
 
+  private static final Log LOG = LogFactory.getLog(MimeContent.class);
   /**
    * The character set.
    */
@@ -46,6 +52,9 @@ public final class MimeContent extends ComplexProperty {
    * The content.
    */
   private byte[] content;
+
+  private boolean isLazy = false;
+  private File lazyTempFile = null;
 
   /**
    * Initializes a new instance of the class.
@@ -88,7 +97,21 @@ public final class MimeContent extends ComplexProperty {
   @Override
   public void readTextValueFromXml(EwsServiceXmlReader reader)
       throws XMLStreamException, ServiceXmlDeserializationException {
-    this.content = Base64.decodeBase64(reader.readValue());
+    try
+    {
+      File contentFile = reader.readValueToFile(true);
+      if (!contentFile.exists())
+      {
+        throw new Exception("Temp file was not created");
+      }
+      lazyTempFile = contentFile;
+      isLazy = true;
+    }
+    catch (Exception e)
+    {
+      LOG.warn("Cannot save mimecontent to file.", e);
+      this.content = Base64.decodeBase64(reader.readValue());
+    }
   }
 
   /**
@@ -140,7 +163,19 @@ public final class MimeContent extends ComplexProperty {
    *
    * @return the content
    */
-  public byte[] getContent() {
+  public byte[] getContent()
+  {
+    if(isLazy)
+    {
+      try
+      {
+        return Files.readAllBytes(lazyTempFile.toPath());
+      }
+      catch (IOException e)
+      {
+        e.printStackTrace();
+      }
+    }
     return this.content;
   }
 

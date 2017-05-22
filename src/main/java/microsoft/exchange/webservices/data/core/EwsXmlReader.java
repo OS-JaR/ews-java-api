@@ -37,19 +37,9 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import javax.xml.stream.events.*;
+import java.io.*;
+import java.util.UUID;
 
 /**
  * Defines the EwsXmlReader class.
@@ -98,7 +88,6 @@ public class EwsXmlReader {
   protected XMLEventReader initializeXmlReader(InputStream stream) throws Exception {
     XMLInputFactory inputFactory = XMLInputFactory.newInstance();
     inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-
     return inputFactory.createXMLEventReader(stream);
   }
 
@@ -434,6 +423,78 @@ public class EwsXmlReader {
   public String readValue() throws XMLStreamException,
       ServiceXmlDeserializationException {
     return readValue(false);
+  }
+
+  /**
+   * Reads the value. Should return content element or text node as string
+   * Present event must be START ELEMENT. After executing this function
+   * Present event will be set on END ELEMENT
+   *
+   * @param keepWhiteSpace Do not remove whitespace characters if true
+   * @return String
+   * @throws XMLStreamException the XML stream exception
+   * @throws ServiceXmlDeserializationException the service xml deserialization exception
+   */
+  public File readValueToFile(boolean keepWhiteSpace) throws XMLStreamException, ServiceXmlDeserializationException, IOException
+  {
+    File tmpFile = File.createTempFile(UUID.randomUUID().toString(), ".ews_temp");
+    if (this.presentEvent.isStartElement()) {
+      // Go to next event and check for Characters event
+      this.read(keepWhiteSpace);
+      if (this.presentEvent.isCharacters()) {
+        final OutputStream stream = new FileOutputStream(tmpFile);
+        do {
+          if (this.getNodeType().nodeType == XmlNodeType.CHARACTERS) {
+            Characters characters = (Characters) this.presentEvent;
+            if (keepWhiteSpace || (!characters.isIgnorableWhiteSpace()
+                                   && !characters.isWhiteSpace())) {
+              final String charactersData = characters.getData();
+              if (charactersData != null && !charactersData.isEmpty()) {
+                stream.write(charactersData.getBytes());
+              }
+            }
+          }
+          this.read();
+        } while (!this.presentEvent.isEndElement());
+        stream.flush();
+        stream.close();
+        return tmpFile;
+      } else if (this.presentEvent.isEndElement()) {
+        return null;
+      } else {
+        throw new ServiceXmlDeserializationException(
+                getReadValueErrMsg("Could not find " + XmlNodeType.getString(XmlNodeType.CHARACTERS)));
+      }
+    } else if (this.presentEvent.getEventType() == XmlNodeType.CHARACTERS
+               && this.presentEvent.isCharacters()) {
+      final String charData = this.presentEvent.asCharacters().getData();
+      final OutputStream stream = new FileOutputStream(tmpFile);
+      if(charData != null)
+      {
+        stream.write(charData.getBytes());
+      }
+      do {
+        this.read(keepWhiteSpace);
+        if (this.getNodeType().nodeType == XmlNodeType.CHARACTERS) {
+          Characters characters = (Characters) this.presentEvent;
+          if (keepWhiteSpace || (!characters.isIgnorableWhiteSpace()
+                                 && !characters.isWhiteSpace())) {
+            final String charactersData = characters.getData();
+            if (charactersData != null && !charactersData.isEmpty()) {
+              stream.write(charactersData.getBytes());
+            }
+          }
+        }
+      } while (!this.presentEvent.isEndElement());
+      stream.flush();
+      stream.close();
+      return tmpFile;
+    } else {
+      throw new ServiceXmlDeserializationException(
+              getReadValueErrMsg("Expected is " + XmlNodeType.getString(XmlNodeType.START_ELEMENT))
+      );
+    }
+
   }
 
   /**
