@@ -318,7 +318,7 @@ public class EmailAddress extends ComplexProperty implements ISearchStringProvid
         return false;
       }
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return false;
     }
   }

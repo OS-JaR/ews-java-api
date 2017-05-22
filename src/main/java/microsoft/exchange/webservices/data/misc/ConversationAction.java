@@ -378,7 +378,7 @@ public class ConversationAction {
         }
       }
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     } finally {
       writer.writeEndElement();
     }

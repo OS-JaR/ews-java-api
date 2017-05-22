@@ -140,9 +140,9 @@ public final class FolderPermissionCollection extends ComplexPropertyCollection<
       try {
         permission.validate(this.isCalendarFolder, permissionIndex);
       } catch (ServiceValidationException e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       } catch (ServiceLocalException e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
     }
   }

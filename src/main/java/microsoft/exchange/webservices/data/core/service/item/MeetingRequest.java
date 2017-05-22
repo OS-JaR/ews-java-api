@@ -100,7 +100,7 @@ public class MeetingRequest extends MeetingMessage implements ICalendarActionPro
     try {
       return service.bindToItem(MeetingRequest.class, id, propertySet);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return null;
     }
   }
@@ -151,7 +151,7 @@ public class MeetingRequest extends MeetingMessage implements ICalendarActionPro
     try {
       return new AcceptMeetingInvitationMessage(this, tentative);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return null;
     }
   }
@@ -167,7 +167,7 @@ public class MeetingRequest extends MeetingMessage implements ICalendarActionPro
     try {
       return new DeclineMeetingInvitationMessage(this);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return null;
     }
   }

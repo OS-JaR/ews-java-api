@@ -68,9 +68,9 @@ public class DeletedOccurrenceInfo extends ComplexProperty {
       try {
         this.originalStart = reader.readElementValueAsDateTime();
       } catch (ServiceXmlDeserializationException e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       } catch (XMLStreamException e) {
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
       return true;
     } else {

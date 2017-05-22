@@ -97,10 +97,10 @@ public class SafeXmlDocument extends DocumentBuilder {
         this.load((InputStream) reader);
       } catch (XMLStreamException e) {
         // TODO Auto-generated catch block
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       } catch (FileNotFoundException e) {
         // TODO Auto-generated catch block
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
     }
   }
@@ -121,7 +121,7 @@ public class SafeXmlDocument extends DocumentBuilder {
         this.load((InputStream) reader);
       } catch (XMLStreamException e) {
         // TODO Auto-generated catch block
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
     }
   }
@@ -152,7 +152,7 @@ public class SafeXmlDocument extends DocumentBuilder {
         this.load((InputStream) reader);
       } catch (XMLStreamException e) {
         // TODO Auto-generated catch block
-        LOG.error(e);
+       LOG.error("EWS Exception : " + e.getMessage(), e);
       }
     }
 

@@ -299,7 +299,7 @@ public class MapiTypeConverter {
         try {
           dt = utcFormatter.parse(s);
         } catch (ParseException e1) {
-          LOG.error(e);
+         LOG.error("EWS Exception : " + e.getMessage(), e);
           throw new IllegalArgumentException(
               errMsg, e);
         }

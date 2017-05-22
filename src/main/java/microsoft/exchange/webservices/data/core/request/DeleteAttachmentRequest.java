@@ -81,9 +81,9 @@ public final class DeleteAttachmentRequest extends
             String.format("Attachment[%d].Id ", i));
       }
     } catch (ServiceLocalException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
   }
 

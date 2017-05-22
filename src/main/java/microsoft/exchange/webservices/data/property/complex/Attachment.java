@@ -320,7 +320,7 @@ public abstract class Attachment extends ComplexProperty {
         try {
           this.id = reader.readAttributeValue(XmlAttributeNames.Id);
         } catch (Exception e) {
-          LOG.error(e);
+         LOG.error("EWS Exception : " + e.getMessage(), e);
           return false;
         }
         if (this.getOwner() != null) {
@@ -368,7 +368,7 @@ public abstract class Attachment extends ComplexProperty {
         return false;
       }
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return false;
     }
   }

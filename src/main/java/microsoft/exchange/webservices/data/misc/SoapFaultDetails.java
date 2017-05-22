@@ -150,7 +150,7 @@ public class SoapFaultDetails {
             this.setResponseCode(reader
                 .readElementValue(ServiceError.class));
           } catch (Exception e) {
-            LOG.error(e);
+           LOG.error("EWS Exception : " + e.getMessage(), e);
 
             // ServiceError couldn't be mapped to enum value, treat
             // as an ISE
@@ -174,7 +174,7 @@ public class SoapFaultDetails {
             this.setErrorCode(reader
                 .readElementValue(ServiceError.class));
           } catch (Exception e) {
-            LOG.error(e);
+           LOG.error("EWS Exception : " + e.getMessage(), e);
 
             // ServiceError couldn't be mapped to enum value, treat
             // as an ISE
@@ -188,7 +188,7 @@ public class SoapFaultDetails {
           try {
             this.setExceptionType(reader.readElementValue());
           } catch (Exception e) {
-            LOG.error(e);
+           LOG.error("EWS Exception : " + e.getMessage(), e);
             this.setExceptionType(null);
           }
         } else if (localName.equals(XmlElementNames.MessageXml)) {

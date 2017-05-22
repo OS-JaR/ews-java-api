@@ -170,7 +170,7 @@ abstract class FindRequest<TResponse extends ServiceResponse> extends
       this.getParentFolderIds().writeToXml(writer, XmlNamespace.Messages,
           XmlElementNames.ParentFolderIds);
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
 
     if (!(this.queryString == null || this.queryString.isEmpty())) {

@@ -618,7 +618,7 @@ public abstract class ServiceRequestBase<T> {
       // If response doesn't contain a valid SOAP fault, just ignore
       // exception and
       // return null for SOAP fault details.
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
 
     return soapFaultDetails;

@@ -162,7 +162,7 @@ public class Folder extends ServiceObject {
         this.getPermissions().validate();
       }
     } catch (ServiceLocalException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
   }
 
@@ -242,7 +242,7 @@ public class Folder extends ServiceObject {
     try {
       this.throwIfThisIsNew();
     } catch (InvalidOperationException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
 
     this.getService().deleteFolder(this.getId(), deleteMode);
@@ -627,7 +627,7 @@ public class Folder extends ServiceObject {
       return getPropertyBag().getObjectFromPropertyDefinition(
           getIdPropertyDefinition());
     } catch (ServiceLocalException e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
       return null;
     }
   }

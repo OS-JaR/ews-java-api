@@ -231,8 +231,8 @@ public abstract class HangingServiceRequestBase<T> extends ServiceRequestBase<T>
     } catch (IOException ex) {
       // Stream is closed, so disconnect.
       this.disconnect(HangingRequestDisconnectReason.Exception, ex);
-    } catch (UnsupportedOperationException ex) {
-      LOG.error(ex);
+    } catch (UnsupportedOperationException e) {
+      LOG.error("EWS Exception : " + e.getMessage(), e);
       // This is thrown if we close the stream during a
       //read operation due to a user method call.
       // Trying to delay closing until the read finishes

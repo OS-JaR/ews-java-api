@@ -3744,7 +3744,7 @@ public class ExchangeService extends ExchangeServiceBase implements IAutodiscove
     try {
       this.url = this.adjustServiceUriFromCredentials(this.getUrl());
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
     return this.prepareHttpWebRequestForUrl(url, this
         .getAcceptGzipEncoding(), true);
@@ -3762,7 +3762,7 @@ public class ExchangeService extends ExchangeServiceBase implements IAutodiscove
 	    try {
 	      this.url = this.adjustServiceUriFromCredentials(this.getUrl());
 	    } catch (Exception e) {
-	      LOG.error(e);
+	     LOG.error("EWS Exception : " + e.getMessage(), e);
 	    }
 	    return this.prepareHttpPoolingWebRequestForUrl(url, this
 	        .getAcceptGzipEncoding(), true);

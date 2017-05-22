@@ -52,7 +52,7 @@ public abstract class AbstractAsyncCallback implements Runnable, Callback<Object
           Thread.sleep(1000);
         } catch (InterruptedException e) {
           // TODO Auto-generated catch block
-          LOG.error(e);
+         LOG.error("EWS Exception : " + e.getMessage(), e);
         }
         break;
       }

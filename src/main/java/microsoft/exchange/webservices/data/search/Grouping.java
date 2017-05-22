@@ -212,7 +212,7 @@ public final class Grouping implements ISelfValidate {
     try {
       this.internalValidate();
     } catch (Exception e) {
-      LOG.error(e);
+     LOG.error("EWS Exception : " + e.getMessage(), e);
     }
 
   }
