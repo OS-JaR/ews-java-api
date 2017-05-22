@@ -102,6 +102,7 @@
         <joda-time.version>2.8</joda-time.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <commons-io.version>2.4</commons-io.version>
+        <streamflyer.version>1.2.0</streamflyer.version>
         <!--  Dependencies [TEST]:  -->
         <junit.version>4.12</junit.version>
         <hamcrest-all.version>1.3</hamcrest-all.version>
@@ -231,6 +232,12 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.rwitzel.streamflyer</groupId>
+            <artifactId>streamflyer-core</artifactId>
+            <version>${streamflyer.version}</version>
         </dependency>
 
         <dependency>
