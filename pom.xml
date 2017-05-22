@@ -30,7 +30,8 @@
 
     <groupId>com.microsoft.ews-java-api</groupId>
     <artifactId>ews-java-api</artifactId>
-    
+    <packaging>jar</packaging>
+
     <version>2.1-SNAPSHOT</version>
 
     <name>Exchange Web Services Java API</name>
@@ -55,19 +56,18 @@
 
     <developers>
         <developer>
-            <id>vboctor</id>
-            <name>Victor Boctor</name>
-            <email>vboctor@users.noreply.github.com</email>
-            <url>http://www.github.com/officedev/ews-java-api</url>
-            <organization>Microsoft</organization>
-            <organizationUrl>http://www.microsoft.com</organizationUrl>
+            <id>OS-JaR</id>
+            <name>Jan Reuter</name>
+            <email>OS-JaR@users.noreply.github.com</email>
+            <url>http://www.github.com/OS-JaR/ews-java-api</url>
+            <organization>Optimal Systems GmbH</organization>
+            <organizationUrl>http://www.optimal-systems.de</organizationUrl>
             <roles>
                 <role>administrator</role>
                 <role>developer</role>
             </roles>
-            <timezone>America/New_York</timezone>
             <properties>
-                 <picUrl>http://www.example.com/jdoe/pic</picUrl>
+                 <picUrl>https://avatars0.githubusercontent.com/u/20598347?v=3&amp;s=460</picUrl>
             </properties>
         </developer>
     </developers>
@@ -76,7 +76,7 @@
         <!-- Eliminates the file encoding warning. Of course, all of your files
             should probably be UTF-8 nowadays. -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javaLanguage.version>1.6</javaLanguage.version>
+        <javaLanguage.version>1.8</javaLanguage.version>
         <javadoc.doclint.param/>
 
         <!--  Dependencies [BUILD]:  -->
@@ -186,31 +186,15 @@
     </licenses>
 
     <issueManagement>
-        <url>https://github.com/OfficeDev/ews-java-api/issues</url>
+        <url>https://github.com/OS-JaR/ews-java-api/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
 
-    <ciManagement>
-        <system>travis</system>
-        <url>https://travis-ci.org/OfficeDev/ews-java-api</url>
-    </ciManagement>
-
     <scm>
-        <url>https://github.com/OfficeDev/ews-java-api</url>
-        <connection>scm:git:ssh://git@github.com:OfficeDev/ews-java-api.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:OfficeDev/ews-java-api.git</developerConnection>
+        <url>https://github.com/OS-JaR/ews-java-api</url>
+        <connection>scm:git:ssh://git@github.com:OS-JaR/ews-java-api.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:OS-JaR/ews-java-api.git</developerConnection>
     </scm>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh-snapshot</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -293,21 +277,24 @@
 
     </dependencies>
 
+    <distributionManagement>
+        <!-- OS release and snapshot deployments -->
+        <repository>
+            <id>os-releases</id>
+            <name>OS Release Repository</name>
+            <url>http://mavenproxy.optimal-systems.de:8888/nexus/content/repositories/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>os-snapshots</id>
+            <name>OS Snapshot Repository</name>
+            <url>http://mavenproxy.optimal-systems.de:8888/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <!-- Deployment / build plugins -->
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${nexus-staging-maven-plugin.version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <!-- Ref.: http://books.sonatype.com/nexus-book/reference/staging-deployment.html -->
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
