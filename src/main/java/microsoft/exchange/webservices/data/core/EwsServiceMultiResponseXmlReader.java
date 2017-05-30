@@ -98,7 +98,7 @@ public class EwsServiceMultiResponseXmlReader extends EwsServiceXmlReader {
    * @throws Exception on error
    */
   @Override
-  protected XMLEventReader initializeXmlReader(InputStream stream, Boolean forceXml11)
+  protected XMLEventReader initializeXmlReader(InputStream stream, XmlModifier modifier)
       throws Exception {
     return createXmlReader(stream);
   }

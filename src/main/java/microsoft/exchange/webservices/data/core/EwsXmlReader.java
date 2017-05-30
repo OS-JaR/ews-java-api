@@ -24,6 +24,7 @@
 package microsoft.exchange.webservices.data.core;
 
 import com.github.rwitzel.streamflyer.core.ModifyingReader;
+import com.github.rwitzel.streamflyer.xml.InvalidXmlCharacterModifier;
 import microsoft.exchange.webservices.data.core.enumeration.misc.XmlNamespace;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceXmlDeserializationException;
 import microsoft.exchange.webservices.data.misc.OutParam;
@@ -40,25 +41,18 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import javax.xml.stream.events.*;
+import java.io.*;
 
 /**
  * Defines the EwsXmlReader class.
  */
 public class EwsXmlReader {
+
+  public enum XmlModifier
+  {
+    NONE, VERSION, REPLACER
+  }
 
   private static final Log LOG = LogFactory.getLog(EwsXmlReader.class);
 
@@ -82,6 +76,8 @@ public class EwsXmlReader {
    */
   private XMLEvent prevEvent;
 
+  private XmlModifier modifier = XmlModifier.NONE;
+
   /**
    * Initializes a new instance of the EwsXmlReader class.
    *
@@ -89,7 +85,7 @@ public class EwsXmlReader {
    * @throws Exception on error
    */
   public EwsXmlReader(InputStream stream) throws Exception {
-    this.xmlReader = initializeXmlReader(stream, true);
+    this.xmlReader = initializeXmlReader(stream, XmlModifier.VERSION);
   }
 
   /**
@@ -98,8 +94,9 @@ public class EwsXmlReader {
    * @param stream the stream
    * @throws Exception on error
    */
-  public EwsXmlReader(InputStream stream, Boolean forceXml11) throws Exception {
-    this.xmlReader = initializeXmlReader(stream, forceXml11);
+  public EwsXmlReader(InputStream stream, XmlModifier modifier) throws Exception {
+    this.modifier = modifier;
+    this.xmlReader = initializeXmlReader(stream, modifier);
   }
 
   /**
@@ -109,18 +106,31 @@ public class EwsXmlReader {
    * @return An XML reader to use.
    * @throws Exception on error
    */
-  protected XMLEventReader initializeXmlReader(InputStream stream, Boolean forceXml11) throws Exception {
+  protected XMLEventReader initializeXmlReader(InputStream stream, XmlModifier modifier) throws Exception {
     XMLInputFactory inputFactory = XMLInputFactory.newInstance();
     inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
 
     // force all documents to be 1.1 compliant to allow unicode control
     // characters to pass through instead of throwing parse errors
-    if (forceXml11) {
-      Reader reader = new XmlStreamReader(stream);
-      ModifyingReader modifyingReader = new ModifyingReader(reader, new XmlVersionModifier("1.1", 8192));
-      return inputFactory.createXMLEventReader(modifyingReader);
-    } else {
-      return inputFactory.createXMLEventReader(stream);
+    switch (modifier)
+    {
+      case REPLACER:
+      {
+        Reader reader = new XmlStreamReader(stream);
+        ModifyingReader modifyingReader = new ModifyingReader(reader, new InvalidXmlCharacterModifier("", InvalidXmlCharacterModifier.XML_11_VERSION));
+        return inputFactory.createXMLEventReader(modifyingReader);
+      }
+      case VERSION:
+      {
+        Reader reader = new XmlStreamReader(stream);
+        ModifyingReader modifyingReader = new ModifyingReader(reader, new XmlVersionModifier("1.1", 8192));
+        return inputFactory.createXMLEventReader(modifyingReader);
+      }
+      case NONE:
+      default:
+      {
+        return inputFactory.createXMLEventReader(stream);
+      }
     }
   }
 
