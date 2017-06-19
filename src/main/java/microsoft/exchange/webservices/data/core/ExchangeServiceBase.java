@@ -23,27 +23,6 @@
 
 package microsoft.exchange.webservices.data.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.TimeZone;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
 import microsoft.exchange.webservices.data.EWSConstants;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.misc.TraceFlags;
@@ -55,13 +34,11 @@ import microsoft.exchange.webservices.data.core.request.HttpWebRequest;
 import microsoft.exchange.webservices.data.credential.ExchangeCredentials;
 import microsoft.exchange.webservices.data.misc.EwsTraceListener;
 import microsoft.exchange.webservices.data.misc.ITraceListener;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.AuthenticationStrategy;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
@@ -72,6 +49,20 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Represents an abstract binding to an Exchange Service.
@@ -148,7 +139,9 @@ public abstract class ExchangeServiceBase implements Closeable {
 
   protected CloseableHttpClient httpClient;
 
-  protected HttpClientContext httpContext;
+  //protected HttpClientContext httpContext; //TODO not threadsafe...maybe we've got a prob right here?
+
+  protected CookieStore cookieStore;
 
   protected CloseableHttpClient	httpPoolingClient;
   
@@ -173,7 +166,7 @@ public abstract class ExchangeServiceBase implements Closeable {
   protected ExchangeServiceBase() {
     setUseDefaultCredentials(true);
     initializeHttpClient();
-    initializeHttpContext();
+    initializeCookieStore();
   }
 
   protected ExchangeServiceBase(ExchangeVersion requestedServerVersion) {
@@ -257,10 +250,16 @@ public abstract class ExchangeServiceBase implements Closeable {
    * (Re)initializes the HttpContext object. This removes any existing state (mainly cookies). Use an own
    * cookie store, instead of the httpClient's global store, so cookies get reset on reinitialization
    */
-  private void initializeHttpContext() {
-    CookieStore cookieStore = new BasicCookieStore();
+  /*private void initializeHttpContext() {
     httpContext = HttpClientContext.create();
     httpContext.setCookieStore(cookieStore);
+  }*/
+
+  private void initializeCookieStore() {
+    if(cookieStore == null)
+    {
+      cookieStore = new BasicCookieStore();
+    }
   }
 
   @Override
@@ -312,7 +311,7 @@ public abstract class ExchangeServiceBase implements Closeable {
       throw new ServiceLocalException(strErr);
     }
 
-    HttpClientWebRequest request = new HttpClientWebRequest(httpClient, httpContext);
+    HttpClientWebRequest request = new HttpClientWebRequest(httpClient);
     prepareHttpWebRequestForUrl(url, acceptGzipEncoding, allowAutoRedirect, request);
 
     return request;
@@ -346,7 +345,7 @@ public abstract class ExchangeServiceBase implements Closeable {
       initializeHttpPoolingClient();
     }
 
-    HttpClientWebRequest request = new HttpClientWebRequest(httpPoolingClient, httpContext);
+    HttpClientWebRequest request = new HttpClientWebRequest(httpPoolingClient);
     prepareHttpWebRequestForUrl(url, acceptGzipEncoding, allowAutoRedirect, request);
 
     return request;
@@ -633,9 +632,6 @@ public abstract class ExchangeServiceBase implements Closeable {
   public void setCredentials(ExchangeCredentials credentials) {
     this.credentials = credentials;
     this.useDefaultCredentials = false;
-
-    // Reset the httpContext, to remove any existing authentication cookies from subsequent request
-    initializeHttpContext();
   }
 
   /**
@@ -662,9 +658,6 @@ public abstract class ExchangeServiceBase implements Closeable {
     if (value) {
       this.credentials = null;
     }
-
-    // Reset the httpContext, to remove any existing authentication cookies from subsequent request
-    initializeHttpContext();
   }
   
   /**
