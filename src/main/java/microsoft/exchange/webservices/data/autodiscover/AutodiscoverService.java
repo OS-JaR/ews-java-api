@@ -389,7 +389,7 @@ public class AutodiscoverService extends ExchangeServiceBase
     HttpWebRequest request = null;
 
     try {
-      request = new HttpClientWebRequest(httpClient, httpContext);
+      request = new HttpClientWebRequest(httpClient);
       request.setProxy(getWebProxy());
 
       try {
@@ -1510,7 +1510,7 @@ public class AutodiscoverService extends ExchangeServiceBase
 
       HttpWebRequest request = null;
       try {
-        request = new HttpClientWebRequest(httpClient, httpContext);
+        request = new HttpClientWebRequest(httpClient);
         request.setProxy(getWebProxy());
 
         try {
