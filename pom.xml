@@ -32,7 +32,7 @@
     <artifactId>ews-java-api</artifactId>
     <packaging>jar</packaging>
 
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.2-SNAPSHOT</version>
 
     <name>Exchange Web Services Java API</name>
     <description>Exchange Web Services (EWS) Java API</description>

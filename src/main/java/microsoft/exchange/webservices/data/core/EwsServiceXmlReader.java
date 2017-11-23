@@ -61,6 +61,20 @@ public class EwsServiceXmlReader extends EwsXmlReader {
   }
 
   /**
+   * Initializes a new instance of the EwsXmlReader class.
+   *
+   * @param stream the stream
+   * @param service the service
+   * @param modifier the modifier
+   * @throws Exception on error
+   */
+  public EwsServiceXmlReader(InputStream stream, ExchangeService service, XmlModifier modifier)
+          throws Exception {
+    super(stream, modifier);
+    this.service = service;
+  }
+
+  /**
    * Reads the element value as date time.
    *
    * @return Element value

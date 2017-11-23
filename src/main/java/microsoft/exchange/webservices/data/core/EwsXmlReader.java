@@ -24,11 +24,11 @@
 package microsoft.exchange.webservices.data.core;
 
 import com.github.rwitzel.streamflyer.core.ModifyingReader;
-import com.github.rwitzel.streamflyer.xml.InvalidXmlCharacterModifier;
 import microsoft.exchange.webservices.data.core.enumeration.misc.XmlNamespace;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceXmlDeserializationException;
 import microsoft.exchange.webservices.data.misc.OutParam;
 import microsoft.exchange.webservices.data.security.XmlNodeType;
+import microsoft.exchange.webservices.data.util.ExtendedInvalidXmlCharacterModifier;
 import microsoft.exchange.webservices.data.util.XmlVersionModifier;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.input.XmlStreamReader;
@@ -92,6 +92,7 @@ public class EwsXmlReader {
    * Initializes a new instance of the EwsXmlReader class.
    *
    * @param stream the stream
+   * @param modifier the modifier to use
    * @throws Exception on error
    */
   public EwsXmlReader(InputStream stream, XmlModifier modifier) throws Exception {
@@ -117,7 +118,7 @@ public class EwsXmlReader {
       case REPLACER:
       {
         Reader reader = new XmlStreamReader(stream);
-        ModifyingReader modifyingReader = new ModifyingReader(reader, new InvalidXmlCharacterModifier("", InvalidXmlCharacterModifier.XML_11_VERSION));
+        ModifyingReader modifyingReader = new ModifyingReader(reader, new ExtendedInvalidXmlCharacterModifier(""));
         return inputFactory.createXMLEventReader(modifyingReader);
       }
       case VERSION:

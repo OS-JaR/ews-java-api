@@ -13,87 +13,169 @@ import java.util.regex.Pattern;
  */
 public class ExtendedInvalidXmlCharacterModifier implements Modifier
 {
-    public static final String XML_10_VERSION = "1.0";
-    public static final String XML_11_VERSION = "1.1";
-    protected ModificationFactory factory;
-    protected String replacement;
-    protected Matcher matcher;
-    protected boolean dollarZero;
+    private enum XmlVersionModifierState
+    {
+        /**
+         * The initial state. No input read yet.
+         */
+        INITIAL,
 
-    public ExtendedInvalidXmlCharacterModifier(String replacement, String xmlVersion) {
-        this(8192, replacement, xmlVersion, replacement.contains("$0"));
+        /**
+         * The modifier has requested to read the XML prolog.
+         */
+        PROLOG_REQUEST,
+
+        /**
+         * The modifier has read the XML prolog, modified it if necessary.
+         * Nothing more to do for the modifier.
+         */
+        PROLOG_MODIFIED,
+        PROLOG_UNMODIFIED,
     }
 
-    public ExtendedInvalidXmlCharacterModifier(int newNumberOfChars, String replacement, String xmlVersion, boolean dollarZero) {
+    protected ModificationFactory factory;
+
+    /**
+     * The replacement for each invalid XML character.
+     */
+    protected String replacement;
+
+    protected int numberOfChars;
+
+    /**
+     * This matcherInvalidChar matches invalid XML characters.
+     */
+    protected Matcher matcherInvalidChar;
+
+    /**
+     * This matcherXmlVersion matches XML version prolog.
+     */
+    protected Matcher matcherXmlVersion;
+
+    private XmlVersionModifierState state = XmlVersionModifierState.INITIAL;
+
+    /**
+     * Like {@link ExtendedInvalidXmlCharacterModifier#ExtendedInvalidXmlCharacterModifier(int, String)} but uses 8192
+     * as default for <code>newNumberOfChars</code>
+     */
+    public ExtendedInvalidXmlCharacterModifier(String replacementInvalidChar) {
+        this(8192, replacementInvalidChar);
+    }
+
+    /**
+     * @param newNumberOfChars
+     * @param replacement
+     *            the string that shall replace invalid XML characters. This string may contain "$0" which refers to the
+     *            replaced character, see {@link Matcher#replaceAll(String)}.
+     */
+    public ExtendedInvalidXmlCharacterModifier(int newNumberOfChars, String replacement) {
+
         ZzzValidate.notNull(replacement, "replacement must not be null");
-        ZzzValidate.notNull(xmlVersion, "xmlVersion must not be null");
+
         this.factory = new ModificationFactory(0, newNumberOfChars);
         this.replacement = replacement;
-        this.dollarZero = dollarZero;
-        Pattern pattern;
-        if("1.0".equals(xmlVersion)) {
-            pattern = Pattern.compile(this.getInvalidXmlCharacterRegex_Xml10());
-        } else {
-            if(!"1.1".equals(xmlVersion)) {
-                throw new IllegalArgumentException("xmlVersion has the illegal (or unsupported) value " + xmlVersion);
-            }
+        this.numberOfChars = newNumberOfChars;
 
-            pattern = Pattern.compile(this.getInvalidXmlCharacterRegex_Xml11());
-        }
-
-        this.matcher = pattern.matcher("");
+        this.matcherInvalidChar = Pattern.compile(getInvalidXmlCharacterRegex_Xml11()).matcher("");
     }
 
-    protected String getInvalidXmlCharacterRegex_Xml10() {
-        return "[^\\u0020-\\uD7FF\\u0009\\u000A\\u000D\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
-    }
-
+    /**
+     * <pre>
+     * [2]     Char       ::=      [#x1-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+     * // any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.
+     * </pre>
+     *
+     * [Source: http://www.w3.org/TR/xml11/#charsets ]
+     *
+     * @return Returns a regular expression that matches invalid XML 1.1 characters.
+     */
     protected String getInvalidXmlCharacterRegex_Xml11() {
-        return "[^\\u0001-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
+        return "[^\\u0001-\\uD7F0\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
     }
 
-    public AfterModification modify(StringBuilder characterBuffer, int firstModifiableCharacterInBuffer, boolean endOfStreamHit) {
-        this.matcher.reset(characterBuffer);
-        this.matcher.region(firstModifiableCharacterInBuffer, characterBuffer.length());
+    /**
+     * @see com.github.rwitzel.streamflyer.core.Modifier#modify(java.lang.StringBuilder, int, boolean)
+     */
+    @Override
+    public AfterModification modify(StringBuilder characterBuffer, int firstModifiableCharacterInBuffer, boolean endOfStreamHit)
+    {
+        try
+        {
+            switch (state)
+            {
+                case PROLOG_MODIFIED:
+                case PROLOG_UNMODIFIED:
+                {
+                    matcherInvalidChar.reset(characterBuffer);
+                    matcherInvalidChar.region(firstModifiableCharacterInBuffer, characterBuffer.length());
 
-        for(int start = firstModifiableCharacterInBuffer; this.matcher.find(start); start = this.onMatch(characterBuffer)) {
-            ;
-        }
+                    // String newCharacterBuffer = matcherInvalidChar.replaceAll(replacementInvalidChar);
+                    // characterBuffer.setLength(0);
+                    // characterBuffer.append(newCharacterBuffer);
 
-        return this.factory.skipEntireBuffer(characterBuffer, firstModifiableCharacterInBuffer, endOfStreamHit);
-    }
+                    int start = firstModifiableCharacterInBuffer;
+                    while (matcherInvalidChar.find(start))
+                    {
+                        start = onMatch(characterBuffer);
+                    }
 
-    protected int onMatch(StringBuilder characterBuffer) {
-        String replacement_ = this.replacement(characterBuffer);
-        characterBuffer.replace(this.matcher.start(), this.matcher.end(), replacement_);
-        return this.matcher.start() + replacement_.length();
-    }
-
-    protected String replacement(StringBuilder characterBuffer) {
-        if(!this.dollarZero) {
-            return this.replacement;
-        } else {
-            char ch = characterBuffer.charAt(this.matcher.start());
-
-            String chHex;
-            for(chHex = Integer.toString(ch, 16).toUpperCase(); chHex.length() < 4; chHex = "0" + chHex) {
-                ;
+                    return factory.skipEntireBuffer(characterBuffer, firstModifiableCharacterInBuffer, endOfStreamHit);
+                }
+                case INITIAL:
+                {
+                    state = XmlVersionModifierState.PROLOG_REQUEST;
+                    return factory.modifyAgainImmediately(numberOfChars, firstModifiableCharacterInBuffer);
+                }
+                case PROLOG_REQUEST:
+                {
+                    Matcher matcher = Pattern.compile("<\\?xml\\s+version\\s*=\\s*['\"](1.0|1.1)['\"].*").matcher(characterBuffer);
+                    if (matcher.find())
+                    {
+                        characterBuffer.replace(matcher.start(1), matcher.end(1), "1.1");
+                        state = XmlVersionModifierState.PROLOG_MODIFIED;
+                        return factory.skip(matcher.end(1), characterBuffer, firstModifiableCharacterInBuffer, endOfStreamHit);
+                    }
+                    state = XmlVersionModifierState.PROLOG_UNMODIFIED;
+                    return factory.modifyAgainImmediately(numberOfChars, firstModifiableCharacterInBuffer);
+                }
+                default:
+                    return factory.skipEntireBuffer(characterBuffer, firstModifiableCharacterInBuffer, endOfStreamHit);
             }
-
-            chHex = "U+" + chHex;
-            return this.replacement.replace("$0", chHex);
+        }
+        catch (Exception e)
+        {
+            return factory.skipEntireBuffer(characterBuffer, firstModifiableCharacterInBuffer, endOfStreamHit);
         }
     }
 
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("InvalidXmlCharacterModifier [\nreplacement=");
-        builder.append(this.replacement);
-        builder.append(", \nmatcher=");
-        builder.append(this.matcher);
-        builder.append(", \ndollarZero=");
-        builder.append(this.dollarZero);
-        builder.append("]");
-        return builder.toString();
+    public static void replaceAll(StringBuilder builder, String from, String to)
+    {
+        int index = builder.indexOf(from);
+        while (index != -1)
+        {
+            builder.replace(index, index + from.length(), to);
+            index += to.length(); // Move to the end of the replacement
+            index = builder.indexOf(from, index);
+        }
+    }
+
+    /**
+     * Replaces the found invalid XML character with the given replacementInvalidChar.
+     * <p>
+     * You may override this method to insert some information about invalid character in to the character buffer.
+     *
+     * @param characterBuffer
+     */
+    protected int onMatch(StringBuilder characterBuffer)
+    {
+        characterBuffer.replace(matcherInvalidChar.start(), matcherInvalidChar.end(), replacement);
+
+        // calling reset(..) is redundant as find(start) calls reset() first
+        // if (replacement_.length() != 1) {
+        // matcherInvalidChar.reset(characterBuffer);
+        // }
+
+        return matcherInvalidChar.start() + replacement.length();
+
     }
 }

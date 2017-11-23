@@ -43,6 +43,7 @@ public class XmlVersionModifierTest {
   private static final String BASE_XML =  "<?xml version=\"%s\" encoding=\"UTF-8\"?>" +
                                 "<test>%stestContent</test>";
   private static final String BAD_10 = "&#x5;&#x1A;&#x2B;\\uD800_1_\\uDFFF_2_\\uFFFE";
+  private static final String BAD_11 = Character.toString((char)65535);
 
   private final Map<AbstractMap.SimpleEntry<String, EwsXmlReader.XmlModifier>, AbstractMap.SimpleEntry<Consumer<EwsXmlReader.XmlModifier>, List<Class>>> testCases = new HashMap<AbstractMap.SimpleEntry<String, EwsXmlReader.XmlModifier>, AbstractMap.SimpleEntry<Consumer<EwsXmlReader.XmlModifier>, List<Class>>>()
   {{
@@ -53,7 +54,7 @@ public class XmlVersionModifierTest {
     put(new SimpleEntry<>("Test 1, xml 10, bad, NONE", EwsXmlReader.XmlModifier.NONE),
         new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(true, true), modifier), Arrays.asList(XMLStreamException.class)));
     put(new SimpleEntry<>("Test 1, xml 11, bad, NONE", EwsXmlReader.XmlModifier.NONE),
-        new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(false, true), modifier), Arrays.asList()));
+        new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(false, true), modifier), Arrays.asList(XMLStreamException.class)));
 
     put(new SimpleEntry<>("Test 2, xml 10, friendly, VERSION", EwsXmlReader.XmlModifier.VERSION),
         new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(true, false), modifier), Arrays.asList()));
@@ -62,16 +63,16 @@ public class XmlVersionModifierTest {
     put(new SimpleEntry<>("Test 2, xml 10, bad, VERSION", EwsXmlReader.XmlModifier.VERSION),
         new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(true, true), modifier), Arrays.asList()));
     put(new SimpleEntry<>("Test 2, xml 11, bad, VERSION", EwsXmlReader.XmlModifier.VERSION),
-        new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(false, true), modifier), Arrays.asList()));
+        new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(false, true), modifier), Arrays.asList(XMLStreamException.class)));
 
-    /*put(new SimpleEntry<>("Test 3, xml 10, friendly, REPLACER", EwsXmlReader.XmlModifier.REPLACER),
+    put(new SimpleEntry<>("Test 3, xml 10, friendly, REPLACER", EwsXmlReader.XmlModifier.REPLACER),
         new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(true, false), modifier), Arrays.asList()));
     put(new SimpleEntry<>("Test 3, xml 11, friendly, REPLACER", EwsXmlReader.XmlModifier.REPLACER),
         new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(false, false), modifier), Arrays.asList()));
     put(new SimpleEntry<>("Test 3, xml 10, bad, REPLACER", EwsXmlReader.XmlModifier.REPLACER),
-        new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(true, true), modifier), Arrays.asList()));
+        new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(true, true), modifier), Arrays.asList(XMLStreamException.class)));
     put(new SimpleEntry<>("Test 3, xml 11, bad, REPLACER", EwsXmlReader.XmlModifier.REPLACER),
-        new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(false, true), modifier), Arrays.asList()));*/
+        new SimpleEntry<>((modifier) -> generateTestReader(transformXmlBase(false, true), modifier), Arrays.asList()));
   }};
 
   private static void generateTestReader(byte[] content, EwsXmlReader.XmlModifier modifier)
@@ -90,11 +91,11 @@ public class XmlVersionModifierTest {
   {
     try
     {
-      return String.format(BASE_XML, (is10 ?  "1.0" : "1.1") , (isBad ? BAD_10 : "")).getBytes("UTF-8");
+      return String.format(BASE_XML, (is10 ?  "1.0" : "1.1") , (isBad ? (is10 ? BAD_10 : BAD_11) : "")).getBytes("UTF-8");
     }
     catch (UnsupportedEncodingException e)
     {
-      return String.format(BASE_XML, (is10 ?  "1.0" : "1.1") , (isBad ? BAD_10 : "")).getBytes();
+      return String.format(BASE_XML, (is10 ?  "1.0" : "1.1") , (isBad ? (is10 ? BAD_10 : BAD_11) : "")).getBytes();
     }
   }
 
@@ -106,6 +107,7 @@ public class XmlVersionModifierTest {
     try
     {
       String content = currentReader.readValue();
+      LOG.warn("Result : " +  content);
       if(currentClasses.size() == 0)
       {
         boolean success = content.endsWith("testContent");
