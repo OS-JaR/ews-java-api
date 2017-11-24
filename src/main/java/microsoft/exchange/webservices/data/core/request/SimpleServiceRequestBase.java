@@ -27,6 +27,7 @@ import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.TraceFlags;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
 import microsoft.exchange.webservices.data.misc.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -72,9 +73,15 @@ public abstract class SimpleServiceRequestBase<T> extends ServiceRequestBase<T> 
       response = this.validateAndEmitRequest();
       return this.readResponse(response, true);
 
-    } catch (Exception e) {
+    } catch (ClassCastException ccex) {
+      LOG.info("Got a class cast parsing exception '"+ ccex.getMessage() +"', so we try handle this with a slow parser using bad-char replacing");
 
-      if(e.getClass().getName().contains("xml") || e.getMessage().contains("xml"))
+      response = this.validateAndEmitRequest();
+      return this.readResponse(response, true);
+
+    }catch (Exception e) {
+
+      if(StringUtils.contains(e.getClass().getName(), "xml") || StringUtils.contains(e.getMessage(), "xml"))
       {
         try
         {
@@ -88,9 +95,9 @@ public abstract class SimpleServiceRequestBase<T> extends ServiceRequestBase<T> 
           throw new ServiceRequestException(String.format("The request failed, even after second chance. %s", e1.getMessage()), e1);
         }
       }
+
       if (response != null) {
-        this.getService().processHttpResponseHeaders(TraceFlags.
-                                                             EwsResponseHttpHeaders, response);
+        this.getService().processHttpResponseHeaders(TraceFlags.EwsResponseHttpHeaders, response);
       }
 
       throw new ServiceRequestException(String.format("The request failed. %s", e.getMessage()), e);
