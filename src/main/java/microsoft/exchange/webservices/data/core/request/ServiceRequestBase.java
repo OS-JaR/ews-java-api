@@ -23,14 +23,7 @@
 
 package microsoft.exchange.webservices.data.core.request;
 
-import microsoft.exchange.webservices.data.core.EwsServiceXmlReader;
-import microsoft.exchange.webservices.data.core.EwsServiceXmlWriter;
-import microsoft.exchange.webservices.data.core.EwsUtilities;
-import microsoft.exchange.webservices.data.core.ExchangeServerInfo;
-import microsoft.exchange.webservices.data.core.ExchangeService;
-import microsoft.exchange.webservices.data.core.XmlAttributeNames;
-import microsoft.exchange.webservices.data.core.XmlElementNames;
-import microsoft.exchange.webservices.data.core.response.ServiceResponse;
+import microsoft.exchange.webservices.data.core.*;
 import microsoft.exchange.webservices.data.core.enumeration.misc.DateTimePrecision;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
 import microsoft.exchange.webservices.data.core.enumeration.misc.TraceFlags;
@@ -38,12 +31,13 @@ import microsoft.exchange.webservices.data.core.enumeration.misc.XmlNamespace;
 import microsoft.exchange.webservices.data.core.exception.http.EWSHttpException;
 import microsoft.exchange.webservices.data.core.exception.http.HttpErrorException;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceLocalException;
-import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
-import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceVersionException;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceXmlDeserializationException;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceXmlSerializationException;
+import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
+import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceResponseException;
 import microsoft.exchange.webservices.data.core.exception.xml.XmlException;
+import microsoft.exchange.webservices.data.core.response.ServiceResponse;
 import microsoft.exchange.webservices.data.misc.SoapFaultDetails;
 import microsoft.exchange.webservices.data.security.XmlNodeType;
 import org.apache.commons.io.IOUtils;
@@ -52,7 +46,6 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.ws.http.HTTPException;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -365,6 +358,17 @@ public abstract class ServiceRequestBase<T> {
    * @throws Exception on error
    */
   protected T readResponse(HttpWebRequest response) throws Exception {
+    return readResponse(response, false);
+  }
+
+  /**
+   * Reads the response.
+   *
+   * @param response HTTP web request
+   * @return response response object
+   * @throws Exception on error
+   */
+  protected T readResponse(HttpWebRequest response, boolean secondChance) throws Exception {
     T serviceResponse;
 
     if (!response.getResponseContentType().startsWith("text/xml")) {
@@ -392,13 +396,16 @@ public abstract class ServiceRequestBase<T> {
 
         this.traceResponse(response, memoryStream);
         ByteArrayInputStream memoryStreamIn = new ByteArrayInputStream(memoryStream.toByteArray());
-        EwsServiceXmlReader ewsXmlReader = new EwsServiceXmlReader(memoryStreamIn, this.getService());
+
+        EwsServiceXmlReader ewsXmlReader = new EwsServiceXmlReader(memoryStreamIn, this.getService(), secondChance ? EwsXmlReader.XmlModifier.REPLACER : EwsXmlReader.XmlModifier.VERSION);
         serviceResponse = this.readResponse(ewsXmlReader);
+
         serviceResponseStream.close();
         memoryStream.flush();
       } else {
         InputStream responseStream = ServiceRequestBase.getResponseStream(response);
-        EwsServiceXmlReader ewsXmlReader = new EwsServiceXmlReader(responseStream, this.getService());
+        EwsServiceXmlReader ewsXmlReader = new EwsServiceXmlReader(responseStream, this.getService(), secondChance ? EwsXmlReader.XmlModifier.REPLACER : EwsXmlReader.XmlModifier.VERSION);
+
         serviceResponse = this.readResponse(ewsXmlReader);
       }
 

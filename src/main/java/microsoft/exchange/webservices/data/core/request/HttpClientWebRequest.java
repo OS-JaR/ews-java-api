@@ -68,9 +68,9 @@ public class HttpClientWebRequest extends HttpWebRequest {
   /**
    * Instantiates a new http native web request.
    */
-  public HttpClientWebRequest(CloseableHttpClient httpClient, HttpClientContext httpContext) {
+  public HttpClientWebRequest(CloseableHttpClient httpClient) {
     this.httpClient = httpClient;
-    this.httpContext = httpContext;
+    this.httpContext = HttpClientContext.create();
   }
 
   /**

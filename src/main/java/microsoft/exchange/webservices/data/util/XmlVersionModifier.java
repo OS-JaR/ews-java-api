@@ -70,8 +70,8 @@ public class XmlVersionModifier extends com.github.rwitzel.streamflyer.xml.XmlVe
                 Matcher matcher = Pattern.compile(
                         "<\\?xml\\s+version\\s*=\\s*['\"](1.0|1.1)['\"].*")
                         .matcher(characterBuffer);
-                if (matcher.matches()) {
-
+                if (matcher.find())
+                {
                     // replace version in prolog
                     characterBuffer.replace(matcher.start(1), matcher.end(1),
                             xmlVersion);

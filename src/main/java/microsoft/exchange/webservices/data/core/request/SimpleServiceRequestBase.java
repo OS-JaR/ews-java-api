@@ -26,12 +26,12 @@ package microsoft.exchange.webservices.data.core.request;
 import microsoft.exchange.webservices.data.core.ExchangeService;
 import microsoft.exchange.webservices.data.core.enumeration.misc.TraceFlags;
 import microsoft.exchange.webservices.data.core.exception.service.remote.ServiceRequestException;
-import microsoft.exchange.webservices.data.misc.AsyncCallback;
-import microsoft.exchange.webservices.data.misc.AsyncExecutor;
-import microsoft.exchange.webservices.data.misc.AsyncRequestResult;
-import microsoft.exchange.webservices.data.misc.CallableMethod;
-import microsoft.exchange.webservices.data.misc.IAsyncResult;
+import microsoft.exchange.webservices.data.misc.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -40,6 +40,8 @@ import java.util.concurrent.Future;
  * Defines the SimpleServiceRequestBase class.
  */
 public abstract class SimpleServiceRequestBase<T> extends ServiceRequestBase<T> {
+
+  private static final Log LOG = LogFactory.getLog(SimpleServiceRequestBase.class);
 
   /**
    * Initializes a new instance of the SimpleServiceRequestBase class.
@@ -65,10 +67,37 @@ public abstract class SimpleServiceRequestBase<T> extends ServiceRequestBase<T> 
       // Wrap exception.
       throw new ServiceRequestException(String.
           format("The request failed. %s", ex.getMessage()), ex);
-    } catch (Exception e) {
+    } catch (XMLStreamException xmlex) {
+      LOG.info("Got a parsing exception '"+ xmlex.getMessage() +"', so we try handle this with a slow parser using bad-char replacing");
+
+      response = this.validateAndEmitRequest();
+      return this.readResponse(response, true);
+
+    } catch (ClassCastException ccex) {
+      LOG.info("Got a class cast parsing exception '"+ ccex.getMessage() +"', so we try handle this with a slow parser using bad-char replacing");
+
+      response = this.validateAndEmitRequest();
+      return this.readResponse(response, true);
+
+    }catch (Exception e) {
+
+      if(StringUtils.contains(e.getClass().getName(), "xml") || StringUtils.contains(e.getMessage(), "xml"))
+      {
+        try
+        {
+          LOG.info("Maybe we had a parsing exception '" + e.getMessage() + "', so we try handle this with a slow parser using bad-char replacing");
+
+          response = this.validateAndEmitRequest();
+          return this.readResponse(response, true);
+        }
+        catch (Exception e1)
+        {
+          throw new ServiceRequestException(String.format("The request failed, even after second chance. %s", e1.getMessage()), e1);
+        }
+      }
+
       if (response != null) {
-        this.getService().processHttpResponseHeaders(TraceFlags.
-            EwsResponseHttpHeaders, response);
+        this.getService().processHttpResponseHeaders(TraceFlags.EwsResponseHttpHeaders, response);
       }
 
       throw new ServiceRequestException(String.format("The request failed. %s", e.getMessage()), e);
