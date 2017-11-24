@@ -35,6 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class XmlVersionModifierTest {
 
@@ -99,6 +100,18 @@ public class XmlVersionModifierTest {
     }
   }
 
+  private static byte[] transformXmlBaseNew(boolean is10, boolean isBad)
+  {
+    try
+    {
+      return createXml(isBad, is10).getBytes("UTF-8");
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      return createXml(isBad, is10).getBytes();
+    }
+  }
+
   private static EwsXmlReader currentReader;
   private static List<Class> currentClasses;
   
@@ -118,6 +131,76 @@ public class XmlVersionModifierTest {
     {
       Assert.assertTrue(currentClasses.stream().anyMatch(clazz -> clazz.isAssignableFrom(e.getClass()) || e.getClass().isAssignableFrom(clazz)));
     }
+  }
+
+  private static String createXml(boolean isBad, boolean is10)
+  {
+    String base = "<?xml version=\"%s\" encoding=\"UTF-8\"?>" +
+                  "<test>%stestContent</test>";
+
+    String insertion = "";
+    for (int i = Character.MIN_VALUE; i <= Character.MAX_VALUE; i++)
+    {
+      String current = Character.toString((char)i);
+      boolean bad10char = Pattern.compile(getInvalidXmlCharacterRegex_Xml10()).matcher(current).matches();
+      boolean bad11char = Pattern.compile(getInvalidXmlCharacterRegex_Xml11()).matcher(current).matches();
+
+      if(bad10char)
+      {
+        if(is10 && !isBad)
+        {
+          continue;
+        }
+      }
+
+      if(bad11char)
+      {
+        if(is10)
+        {
+          continue;
+        }
+
+        if(!is10 && !isBad)
+        {
+          continue;
+        }
+      }
+
+      insertion += current;
+
+    }
+    return String.format(base, is10 ? "1.0" : "1.1", insertion);
+  }
+
+  /**
+   * <pre>
+   *      [2]    Char       ::=      #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+   *       // any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.
+   * </pre>
+   *
+   * [Source: http://www.w3.org/TR/xml/#charsets ]
+   *
+   * @return Returns a regular expression that matches invalid XML 1.0 characters.
+   */
+  protected static String getInvalidXmlCharacterRegex_Xml10() {
+    // Most characters are probably from the range U+0020 -U+D7FF.
+    // Therefore, in order to optimize performance, we move this range to
+    // the start of the regular expression.
+    return "[^\\u0020-\\uD7FF\\u0009\\u000A\\u000D\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
+  }
+
+  /**
+   * <pre>
+   * [2]     Char       ::=      [#x1-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+   * // any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.
+   * </pre>
+   *
+   * [Source: http://www.w3.org/TR/xml11/#charsets ]
+   *
+   * @return Returns a regular expression that matches invalid XML 1.1 characters.
+   */
+  protected static String getInvalidXmlCharacterRegex_Xml11() {
+    return "[^\\u0001-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
   }
 
   @Test

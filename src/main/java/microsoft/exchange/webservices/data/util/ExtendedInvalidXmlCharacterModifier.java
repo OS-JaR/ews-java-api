@@ -47,11 +47,6 @@ public class ExtendedInvalidXmlCharacterModifier implements Modifier
      */
     protected Matcher matcherInvalidChar;
 
-    /**
-     * This matcherXmlVersion matches XML version prolog.
-     */
-    protected Matcher matcherXmlVersion;
-
     private XmlVersionModifierState state = XmlVersionModifierState.INITIAL;
 
     /**
@@ -90,9 +85,8 @@ public class ExtendedInvalidXmlCharacterModifier implements Modifier
      * @return Returns a regular expression that matches invalid XML 1.1 characters.
      */
     protected String getInvalidXmlCharacterRegex_Xml11() {
-        return "[^\\u0001-\\uD7F0\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
+        return "[^\\u0001-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
     }
-
     /**
      * @see com.github.rwitzel.streamflyer.core.Modifier#modify(java.lang.StringBuilder, int, boolean)
      */
@@ -148,17 +142,6 @@ public class ExtendedInvalidXmlCharacterModifier implements Modifier
         }
     }
 
-    public static void replaceAll(StringBuilder builder, String from, String to)
-    {
-        int index = builder.indexOf(from);
-        while (index != -1)
-        {
-            builder.replace(index, index + from.length(), to);
-            index += to.length(); // Move to the end of the replacement
-            index = builder.indexOf(from, index);
-        }
-    }
-
     /**
      * Replaces the found invalid XML character with the given replacementInvalidChar.
      * <p>
@@ -169,13 +152,6 @@ public class ExtendedInvalidXmlCharacterModifier implements Modifier
     protected int onMatch(StringBuilder characterBuffer)
     {
         characterBuffer.replace(matcherInvalidChar.start(), matcherInvalidChar.end(), replacement);
-
-        // calling reset(..) is redundant as find(start) calls reset() first
-        // if (replacement_.length() != 1) {
-        // matcherInvalidChar.reset(characterBuffer);
-        // }
-
         return matcherInvalidChar.start() + replacement.length();
-
     }
 }
