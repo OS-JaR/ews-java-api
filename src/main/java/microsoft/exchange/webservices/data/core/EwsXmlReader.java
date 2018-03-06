@@ -77,6 +77,10 @@ public class EwsXmlReader {
   private XMLEvent prevEvent;
 
   private XmlModifier modifier = XmlModifier.NONE;
+  public XmlModifier getModifier()
+  {
+    return modifier;
+  }
 
   /**
    * Initializes a new instance of the EwsXmlReader class.
@@ -113,6 +117,7 @@ public class EwsXmlReader {
 
     // force all documents to be 1.1 compliant to allow unicode control
     // characters to pass through instead of throwing parse errors
+    LOG.debug("Start reader initialisation: " + modifier.toString());
     switch (modifier)
     {
       case REPLACER:

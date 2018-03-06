@@ -38,17 +38,7 @@ import microsoft.exchange.webservices.data.property.complex.MessageBody;
 import microsoft.exchange.webservices.data.property.complex.MimeContent;
 import microsoft.exchange.webservices.data.property.complex.StringList;
 import microsoft.exchange.webservices.data.property.complex.UniqueBody;
-import microsoft.exchange.webservices.data.property.definition.AttachmentsPropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.BoolPropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.ByteArrayPropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.ComplexPropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.DateTimePropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.EffectiveRightsPropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.GenericPropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.IntPropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.PropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.ResponseObjectsPropertyDefinition;
-import microsoft.exchange.webservices.data.property.definition.StringPropertyDefinition;
+import microsoft.exchange.webservices.data.property.definition.*;
 
 import java.util.EnumSet;
 
@@ -271,9 +261,7 @@ public class ItemSchema extends ServiceObjectSchema {
   /**
    * Defines the Body property.
    */
-  public static final PropertyDefinition Body = new
-      ComplexPropertyDefinition<MessageBody>(
-      MessageBody.class,
+  public static final PropertyDefinition Body = new ComplexItemBodyPropertyDefinition(
       XmlElementNames.Body, FieldUris.Body, EnumSet.of(
       PropertyDefinitionFlags.CanSet,
       PropertyDefinitionFlags.CanUpdate,

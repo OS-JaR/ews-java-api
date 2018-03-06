@@ -80,8 +80,10 @@ public abstract class SimpleServiceRequestBase<T> extends ServiceRequestBase<T> 
       return this.readResponse(response, true);
 
     }catch (Exception e) {
-
-      if(StringUtils.contains(e.getClass().getName(), "xml") || StringUtils.contains(e.getMessage(), "xml"))
+      LOG.debug("Execution exception '" + e.getMessage() + ". Start checking fallback error detection.");
+      if(StringUtils.contains(e.getClass().getName(), "xml") || StringUtils.contains(e.getMessage(), "xml") ||
+         StringUtils.contains(e.getClass().getName(), "wstx") || StringUtils.contains(e.getMessage(), "wstx") ||
+         StringUtils.contains(e.getMessage(), "Invalid character reference"))
       {
         try
         {

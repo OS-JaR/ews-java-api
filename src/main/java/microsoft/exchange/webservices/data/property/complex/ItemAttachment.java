@@ -23,10 +23,7 @@
 
 package microsoft.exchange.webservices.data.property.complex;
 
-import microsoft.exchange.webservices.data.core.EwsServiceXmlReader;
-import microsoft.exchange.webservices.data.core.EwsServiceXmlWriter;
-import microsoft.exchange.webservices.data.core.EwsUtilities;
-import microsoft.exchange.webservices.data.core.XmlElementNames;
+import microsoft.exchange.webservices.data.core.*;
 import microsoft.exchange.webservices.data.core.service.ServiceObject;
 import microsoft.exchange.webservices.data.core.service.item.Item;
 import microsoft.exchange.webservices.data.core.enumeration.property.BodyType;
@@ -36,6 +33,7 @@ import microsoft.exchange.webservices.data.property.definition.PropertyDefinitio
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;
 
 /**
@@ -123,6 +121,28 @@ public class ItemAttachment extends Attachment implements IServiceObjectChangedD
       if (this.item != null) {
         try {
           this.item.loadFromXml(reader, true /* clearPropertyBag */);
+        } catch (XMLStreamException xmlex) {
+          if(!reader.getModifier().equals(EwsXmlReader.XmlModifier.REPLACER))
+          {
+            LOG.debug("Got a parsing exception on attachment '" + xmlex.getMessage() + "', rethrow instead of ignore.");
+            throw xmlex;
+          }
+          else
+          {
+            LOG.debug("Got a parsing exception on cleaned attachment response '" + xmlex.getMessage() + "'.");
+          }
+        }
+        catch (ClassCastException ccex)
+        {
+          if(!reader.getModifier().equals(EwsXmlReader.XmlModifier.REPLACER))
+          {
+            LOG.debug("Got a class cast exception on attachment '"+ ccex.getMessage() +"', rethrow instead of ignore.");
+            throw ccex;
+          }
+          else
+          {
+            LOG.debug("Got a class cast exception on cleaned attachment response '" + ccex.getMessage() + "'.");
+          }
         } catch (Exception e) {
          LOG.error("EWS Exception : " + e.getMessage(), e);
 

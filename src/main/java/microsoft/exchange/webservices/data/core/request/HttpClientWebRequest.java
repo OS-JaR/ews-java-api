@@ -25,6 +25,8 @@ package microsoft.exchange.webservices.data.core.request;
 
 import microsoft.exchange.webservices.data.core.WebProxy;
 import microsoft.exchange.webservices.data.core.exception.http.EWSHttpException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -39,11 +41,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +52,8 @@ import java.util.Map;
  * HttpClient 3.1 and JCIFS Library.
  */
 public class HttpClientWebRequest extends HttpWebRequest {
+
+  private static final Log LOG = LogFactory.getLog(HttpClientWebRequest.class);
 
   /**
    * The Http Method.
@@ -289,6 +289,7 @@ public class HttpClientWebRequest extends HttpWebRequest {
   @Override
   public int executeRequest() throws EWSHttpException, IOException {
     throwIfRequestIsNull();
+    LOG.debug(String.format("start %s request: %s", this.httpPost.getMethod(), this.httpPost.getURI().toString()));
     response = httpClient.execute(httpPost, httpContext);
     return response.getStatusLine().getStatusCode(); // ?? don't know what is wanted in return
   }
