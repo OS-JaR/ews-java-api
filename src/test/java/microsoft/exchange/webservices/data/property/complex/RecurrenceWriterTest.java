@@ -3,12 +3,12 @@ package microsoft.exchange.webservices.data.property.complex;
 
 import microsoft.exchange.webservices.base.BaseTest;
 import microsoft.exchange.webservices.data.core.EwsServiceXmlWriter;
+import microsoft.exchange.webservices.data.core.enumeration.property.time.DayOfTheWeek;
 import microsoft.exchange.webservices.data.property.complex.recurrence.pattern.Recurrence.WeeklyPattern;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.time.DayOfWeek;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -25,10 +25,10 @@ public class RecurrenceWriterTest extends BaseTest
         WeeklyPattern weekly = new WeeklyPattern();
         Calendar c = Calendar.getInstance();
         c.setFirstDayOfWeek(1);
-        weekly.setFirstDayOfWeek(DayOfWeek.SATURDAY);
+        weekly.setFirstDayOfWeek(DayOfTheWeek.Saturday);
         weekly.setStartDate(new Date());
         weekly.writeElementsToXml(writer);
 
-        assertEquals(DayOfWeek.SATURDAY, weekly.getFirstDayOfWeek());
+        assertEquals(DayOfTheWeek.Saturday, weekly.getFirstDayOfWeek());
     }
 }

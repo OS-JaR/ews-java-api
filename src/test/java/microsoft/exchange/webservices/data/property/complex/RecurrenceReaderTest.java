@@ -22,13 +22,12 @@ package microsoft.exchange.webservices.data.property.complex;
 import microsoft.exchange.webservices.data.core.EwsServiceXmlReader;
 import microsoft.exchange.webservices.data.core.XmlElementNames;
 import microsoft.exchange.webservices.data.core.enumeration.misc.XmlNamespace;
+import microsoft.exchange.webservices.data.core.enumeration.property.time.DayOfTheWeek;
 import microsoft.exchange.webservices.data.property.complex.recurrence.pattern.Recurrence;
 import microsoft.exchange.webservices.data.property.complex.recurrence.pattern.Recurrence.MonthlyPattern;
 import microsoft.exchange.webservices.data.property.complex.recurrence.pattern.Recurrence.YearlyPattern;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.time.DayOfWeek;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
@@ -66,11 +65,11 @@ public class RecurrenceReaderTest {
 
     EwsServiceXmlReader reader = Mockito.mock(EwsServiceXmlReader.class);
     doReturn(XmlElementNames.FirstDayOfWeek).when(reader).getLocalName();
-    doReturn(DayOfWeek.SATURDAY).when(reader).readElementValue(DayOfWeek.class, XmlNamespace.Types, XmlElementNames.FirstDayOfWeek);
+    doReturn(DayOfTheWeek.Saturday).when(reader).readElementValue(DayOfTheWeek.class, XmlNamespace.Types, XmlElementNames.FirstDayOfWeek);
 
     Recurrence.WeeklyPattern weekly = new Recurrence.WeeklyPattern();
     weekly.tryReadElementFromXml(reader);
 
-    assertEquals(DayOfWeek.SATURDAY, weekly.getFirstDayOfWeek());
+    assertEquals(DayOfTheWeek.Saturday, weekly.getFirstDayOfWeek());
   }
 }

@@ -42,7 +42,6 @@ import microsoft.exchange.webservices.data.property.complex.recurrence.range.NoE
 import microsoft.exchange.webservices.data.property.complex.recurrence.range.NumberedRecurrenceRange;
 import microsoft.exchange.webservices.data.property.complex.recurrence.range.RecurrenceRange;
 
-import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1066,7 +1065,7 @@ public abstract class Recurrence extends ComplexProperty {
     private DayOfTheWeekCollection daysOfTheWeek =
         new DayOfTheWeekCollection();
 
-    private DayOfWeek firstDayOfWeek;
+    private DayOfTheWeek firstDayOfWeek;
 
     /**
      * Initializes a new instance of the WeeklyPattern class. specific days
@@ -1161,7 +1160,7 @@ public abstract class Recurrence extends ComplexProperty {
           return true;
         } else if (reader.getLocalName().equals(XmlElementNames.FirstDayOfWeek)) {
           this.firstDayOfWeek = reader.
-              readElementValue(DayOfWeek.class,
+              readElementValue(DayOfTheWeek.class,
                   XmlNamespace.Types,
                   XmlElementNames.FirstDayOfWeek);
           return true;
@@ -1196,12 +1195,12 @@ public abstract class Recurrence extends ComplexProperty {
       return this.daysOfTheWeek;
     }
 
-    public DayOfWeek getFirstDayOfWeek() throws ServiceValidationException {
-      return this.getFieldValueOrThrowIfNull(DayOfWeek.class,
+    public DayOfTheWeek getFirstDayOfWeek() throws ServiceValidationException {
+      return this.getFieldValueOrThrowIfNull(DayOfTheWeek.class,
           this.firstDayOfWeek, "FirstDayOfWeek");
     }
 
-    public void setFirstDayOfWeek(DayOfWeek value) {
+    public void setFirstDayOfWeek(DayOfTheWeek value) {
       if (this.canSetFieldValue(this.firstDayOfWeek, value)) {
         this.firstDayOfWeek = value;
         this.changed();
