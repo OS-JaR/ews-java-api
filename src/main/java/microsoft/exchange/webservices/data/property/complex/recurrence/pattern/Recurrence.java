@@ -24,17 +24,13 @@
 package microsoft.exchange.webservices.data.property.complex.recurrence.pattern;
 
 import microsoft.exchange.webservices.data.attribute.EditorBrowsable;
-import microsoft.exchange.webservices.data.core.EwsServiceXmlReader;
-import microsoft.exchange.webservices.data.core.EwsServiceXmlWriter;
-import microsoft.exchange.webservices.data.core.EwsUtilities;
-import microsoft.exchange.webservices.data.core.ExchangeService;
-import microsoft.exchange.webservices.data.core.XmlElementNames;
-import microsoft.exchange.webservices.data.core.enumeration.property.time.DayOfTheWeek;
-import microsoft.exchange.webservices.data.core.enumeration.property.time.DayOfTheWeekIndex;
+import microsoft.exchange.webservices.data.core.*;
 import microsoft.exchange.webservices.data.core.enumeration.attribute.EditorBrowsableState;
 import microsoft.exchange.webservices.data.core.enumeration.misc.ExchangeVersion;
-import microsoft.exchange.webservices.data.core.enumeration.property.time.Month;
 import microsoft.exchange.webservices.data.core.enumeration.misc.XmlNamespace;
+import microsoft.exchange.webservices.data.core.enumeration.property.time.DayOfTheWeek;
+import microsoft.exchange.webservices.data.core.enumeration.property.time.DayOfTheWeekIndex;
+import microsoft.exchange.webservices.data.core.enumeration.property.time.Month;
 import microsoft.exchange.webservices.data.core.exception.misc.ArgumentException;
 import microsoft.exchange.webservices.data.core.exception.misc.ArgumentOutOfRangeException;
 import microsoft.exchange.webservices.data.core.exception.service.local.ServiceValidationException;
@@ -48,7 +44,6 @@ import microsoft.exchange.webservices.data.property.complex.recurrence.range.Rec
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -1070,7 +1065,7 @@ public abstract class Recurrence extends ComplexProperty {
     private DayOfTheWeekCollection daysOfTheWeek =
         new DayOfTheWeekCollection();
 
-    private Calendar firstDayOfWeek;
+    private DayOfTheWeek firstDayOfWeek;
 
     /**
      * Initializes a new instance of the WeeklyPattern class. specific days
@@ -1134,17 +1129,14 @@ public abstract class Recurrence extends ComplexProperty {
 
       this.getDaysOfTheWeek().writeToXml(writer,
           XmlElementNames.DaysOfWeek);
-      if (this.firstDayOfWeek != null) {
 
-        EwsUtilities
-            .validatePropertyVersion((ExchangeService) writer.getService(), ExchangeVersion.Exchange2010_SP1,
+      EwsUtilities.validatePropertyVersion((ExchangeService) writer.getService(), ExchangeVersion.Exchange2010_SP1,
                                      "FirstDayOfWeek");
 
-        writer.writeElementValue(
+      writer.writeElementValue(
             XmlNamespace.Types,
             XmlElementNames.FirstDayOfWeek,
             this.firstDayOfWeek);
-      }
 
     }
 
@@ -1168,7 +1160,7 @@ public abstract class Recurrence extends ComplexProperty {
           return true;
         } else if (reader.getLocalName().equals(XmlElementNames.FirstDayOfWeek)) {
           this.firstDayOfWeek = reader.
-              readElementValue(Calendar.class,
+              readElementValue(DayOfTheWeek.class,
                   XmlNamespace.Types,
                   XmlElementNames.FirstDayOfWeek);
           return true;
@@ -1203,12 +1195,12 @@ public abstract class Recurrence extends ComplexProperty {
       return this.daysOfTheWeek;
     }
 
-    public Calendar getFirstDayOfWeek() throws ServiceValidationException {
-      return this.getFieldValueOrThrowIfNull(Calendar.class,
+    public DayOfTheWeek getFirstDayOfWeek() throws ServiceValidationException {
+      return this.getFieldValueOrThrowIfNull(DayOfTheWeek.class,
           this.firstDayOfWeek, "FirstDayOfWeek");
     }
 
-    public void setFirstDayOfWeek(Calendar value) {
+    public void setFirstDayOfWeek(DayOfTheWeek value) {
       if (this.canSetFieldValue(this.firstDayOfWeek, value)) {
         this.firstDayOfWeek = value;
         this.changed();
