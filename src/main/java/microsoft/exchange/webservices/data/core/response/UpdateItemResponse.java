@@ -162,6 +162,15 @@ public final class UpdateItemResponse extends ServiceResponse implements
   }
 
   /**
+   * Gets the item that was meaned to be updated.
+   *
+   * @return the request item
+   */
+  public Item getRequestItem() {
+    return this.item;
+  }
+
+  /**
    * Gets the number of property conflicts that were resolved during the
    * update operation.
    *
