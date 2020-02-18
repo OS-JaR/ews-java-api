@@ -32,7 +32,10 @@ import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -44,7 +47,7 @@ public class XmlVersionModifierTest {
   private static final String BASE_XML =  "<?xml version=\"%s\" encoding=\"UTF-8\"?>" +
                                 "<test>%stestContent</test>";
   private static final String BAD_10 = "&#x5;&#x1A;&#x2B;\\uD800_1_\\uDFFF_2_\\uFFFE";
-  private static final String BAD_11 = Character.toString((char)65535);
+  private static final String BAD_11 = "&#x0;" + (char)0 + (char)65535;
 
   private final Map<AbstractMap.SimpleEntry<String, EwsXmlReader.XmlModifier>, AbstractMap.SimpleEntry<Consumer<EwsXmlReader.XmlModifier>, List<Class>>> testCases = new HashMap<AbstractMap.SimpleEntry<String, EwsXmlReader.XmlModifier>, AbstractMap.SimpleEntry<Consumer<EwsXmlReader.XmlModifier>, List<Class>>>()
   {{
@@ -86,6 +89,20 @@ public class XmlVersionModifierTest {
     {
       currentReader = null;
     }
+  }
+
+  private static byte[] loadFromFile(String path)
+  {
+    try
+    {
+      return Files.readAllBytes(Paths.get(path));
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+
+    return new byte[0];
   }
 
   private static byte[] transformXmlBase(boolean is10, boolean isBad)

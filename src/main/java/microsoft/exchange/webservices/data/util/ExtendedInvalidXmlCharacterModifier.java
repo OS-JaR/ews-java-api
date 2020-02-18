@@ -4,6 +4,8 @@ import com.github.rwitzel.streamflyer.core.AfterModification;
 import com.github.rwitzel.streamflyer.core.Modifier;
 import com.github.rwitzel.streamflyer.internal.thirdparty.ZzzValidate;
 import com.github.rwitzel.streamflyer.util.ModificationFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,6 +15,8 @@ import java.util.regex.Pattern;
  */
 public class ExtendedInvalidXmlCharacterModifier implements Modifier
 {
+    private static final Log LOG = LogFactory.getLog(ExtendedInvalidXmlCharacterModifier.class);
+
     private enum XmlVersionModifierState
     {
         /**
@@ -85,7 +89,7 @@ public class ExtendedInvalidXmlCharacterModifier implements Modifier
      * @return Returns a regular expression that matches invalid XML 1.1 characters.
      */
     protected String getInvalidXmlCharacterRegex_Xml11() {
-        return "[^\\u0001-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
+        return "(&#x0;)|[^\\u0001-\\uD7FF\\uE000-\\uFFFD\\u10000-\\u10FFFF]";
     }
     /**
      * @see com.github.rwitzel.streamflyer.core.Modifier#modify(java.lang.StringBuilder, int, boolean)
@@ -102,10 +106,6 @@ public class ExtendedInvalidXmlCharacterModifier implements Modifier
                 {
                     matcherInvalidChar.reset(characterBuffer);
                     matcherInvalidChar.region(firstModifiableCharacterInBuffer, characterBuffer.length());
-
-                    // String newCharacterBuffer = matcherInvalidChar.replaceAll(replacementInvalidChar);
-                    // characterBuffer.setLength(0);
-                    // characterBuffer.append(newCharacterBuffer);
 
                     int start = firstModifiableCharacterInBuffer;
                     while (matcherInvalidChar.find(start))
@@ -151,6 +151,10 @@ public class ExtendedInvalidXmlCharacterModifier implements Modifier
      */
     protected int onMatch(StringBuilder characterBuffer)
     {
+        if(LOG.isDebugEnabled())
+        {
+            LOG.debug(String.format("Start replacing %s (%d-%d)", characterBuffer.substring(matcherInvalidChar.start(), matcherInvalidChar.end()), matcherInvalidChar.start(), matcherInvalidChar.end()));
+        }
         characterBuffer.replace(matcherInvalidChar.start(), matcherInvalidChar.end(), replacement);
         return matcherInvalidChar.start() + replacement.length();
     }
